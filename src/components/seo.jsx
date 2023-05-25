@@ -76,6 +76,11 @@ export function Seo({
         sizes="180x180"
         href="/apple-touch-icon.png"
       />
+
+      <script
+        src={`${process.env.ONWARD_WIDGET_URL}?v=${Date.now()}`}
+      />
+
       {/* The following meta tag is for demonstration only and can be removed */}
       {!!process.env.GATSBY_DEMO_STORE && (
         <meta

@@ -23,12 +23,96 @@ import {
 import { Seo } from "../components/seo"
 
 export default function CartPage() {
-  const { checkout, loading } = React.useContext(StoreContext)
+  const { checkout, loading, client, setCheckout } = React.useContext(StoreContext)
   const emptyCart = checkout.lineItems.length === 0
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    if(window.onwardApp) {
+      await window.onwardApp.updateCartForCheckout();
+    }
     window.open(checkout.webUrl)
   }
+
+  const parseCheckout = (checkout) => {
+    return {
+      currency: checkout.currencyCode || null,
+      items: checkout.lineItems.map(item =>
+        ({
+          id: item.id,
+          cost: { amount: Number(item.variant.price.amount) * item.quantity, currencyCode: item.variant.price.currencyCode },
+          quantity: item.quantity,
+          properties: null,
+          variant: {
+            price: null,
+            requiresShipping: true,
+            id: item.variant.id,
+          }
+        })
+      )
+    };
+  };
+
+  React.useEffect(() => {
+    if(window.onwardApp) {
+      window.onwardApp.cartChanged(parseCheckout(checkout));
+    }
+  }, [checkout]);
+
+  React.useEffect(() => {
+    const storefrontClient = {
+      fetchInsuranceProduct: async function(){
+        return await client.product.fetchByHandle('onward-package-protection').then((product) => {
+          return {
+            variants: product.variants.map(variant =>
+              ({
+                id: variant.id,
+                price: { amount: Number(variant.price.amount), currencyCode: variant.price.currencyCode }
+              })
+            )
+          };
+        });
+      },
+      fetchCart: async function(){
+        return await client.checkout.fetch(checkout.id).then(parseCheckout);
+      },
+      clearCart: async function() {
+        // clearCart(): Promise<Cart>;
+        return await client.checkout.removeLineItems(checkout.id, checkout.lineItems.map(item => item.id)).then(parseCheckout);
+      },
+      updateCartLines: async function(changes) {
+        // updateCartQuantities(changes: Record<string, number>): Promise<Cart>;
+        const response = await client.checkout.updateLineItems(
+          checkout.id,
+          changes.map(({ id, quantity }) => {
+            return {
+              id,
+              quantity,
+            };
+          }),
+        );
+
+        setCheckout(response);
+
+        return parseCheckout(response);
+      },
+      addCartLines: async function(changes) {
+        // applyCartLineChanges(changes: CartLineChange[]): Promise<Cart>;
+        return parseCheckout(await client.checkout.addLineItems(
+          checkout.id,
+          changes.map(({ variantId, quantity }) => {
+            return {
+              variantId,
+              quantity,
+            };
+          }),
+        ));
+      },
+    };
+
+    window.OnwardSettingsJson = {"selectedByDefault":true,"shopEnabled":true,"insuranceFeePercentage":"2.0","carbonOffsetPriceCents":10,"carbonOffsetsEnabled":true,"shopName":"onward-checkout-store","minimumInsurancePriceCents":null,"minimumInsurancePriceVariantId":null,"excludePriceInSubtotalDisplay":true,"smallerSwitch":true,"oneLine":false,"poweredByEnabled":true,"disclaimerEnabled":true,"showSubscriptionWording":true,"moneyFormat":"{{amount}}","checkoutButtonSelector":null,"themePrimaryColor":null,"ctaTextColor":null,"copyLine1":"{{reward_amount}} reward","copyLine2":"Get {{reward_amount}} store credit protect your package from theft, loss or damage.","disclaimerText":"*By deselecting shipping protection, onward-checkout-store is not liable for lost, damaged, or stolen items","rewardsEnabled":true,"rewardsPercentage":"5.0","nativeSubscriptionsEnabled":false,"brandLogoUrl":"https://john1.useonward.dev/public/brandings/127/brand_logo","brandLogoAltUrl":"https://john1.useonward.dev/public/brandings/127/brand_logo_alt","cartItemCountSelector":".cart-count-bubble span","cartSubtotalSelector":".totals__subtotal-value"};
+
+    window.initializeOnward(true, '#onward-container', storefrontClient);
+  });
 
   return (
     <Layout>
@@ -61,6 +145,16 @@ export default function CartPage() {
                 {checkout.lineItems.map((item) => (
                   <LineItem item={item} key={item.id} />
                 ))}
+
+                <tr>
+                  <td className={collapseColumn}></td>
+                  <td className={collapseColumn}></td>
+                  <td className={collapseColumn}></td>
+                  <td className={collapseColumn}></td>
+                  <td>
+                    <div id="onward-container"></div>
+                  </td>
+                </tr>
 
                 <tr className={summary}>
                   <td className={collapseColumn}></td>
