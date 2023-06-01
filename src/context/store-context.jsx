@@ -19,6 +19,7 @@ const defaultValues = {
   addVariantToCart: () => {},
   removeLineItem: () => {},
   updateLineItem: () => {},
+  setCheckout: () => {},
   client,
   checkout: {
     lineItems: [],
@@ -125,6 +126,7 @@ export const StoreProvider = ({ children }) => {
         addVariantToCart,
         removeLineItem,
         updateLineItem,
+        setCheckout,
         checkout,
         loading,
         didJustAddToCart,
