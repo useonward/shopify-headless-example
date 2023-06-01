@@ -9,6 +9,7 @@ module.exports = {
       "A Gatsby starter using the latest Shopify plugin showcasing a store with product overview, individual product pages, and a cart.",
     siteImage: "/default-og-image.jpg",
     twitter: "@gatsbyjs",
+    onwardWidgetUrl:process.env.ONWARD_WIDGET_URL,
   },
   flags: {
     FAST_DEV: true,
