@@ -109,9 +109,15 @@ export default function CartPage() {
       },
     };
 
-    window.OnwardSettingsJson = {"selectedByDefault":true,"shopEnabled":true,"insuranceFeePercentage":"2.0","carbonOffsetPriceCents":10,"carbonOffsetsEnabled":true,"shopName":"onward-checkout-store","minimumInsurancePriceCents":null,"minimumInsurancePriceVariantId":null,"excludePriceInSubtotalDisplay":true,"smallerSwitch":true,"oneLine":false,"poweredByEnabled":true,"disclaimerEnabled":true,"showSubscriptionWording":true,"moneyFormat":"{{amount}}","checkoutButtonSelector":null,"themePrimaryColor":null,"ctaTextColor":null,"copyLine1":"{{reward_amount}} reward","copyLine2":"Get {{reward_amount}} store credit protect your package from theft, loss or damage.","disclaimerText":"*By deselecting shipping protection, onward-checkout-store is not liable for lost, damaged, or stolen items","rewardsEnabled":true,"rewardsPercentage":"5.0","nativeSubscriptionsEnabled":false,"brandLogoUrl":"https://john1.useonward.dev/public/brandings/127/brand_logo","brandLogoAltUrl":"https://john1.useonward.dev/public/brandings/127/brand_logo_alt","cartItemCountSelector":".cart-count-bubble span","cartSubtotalSelector":".totals__subtotal-value"};
-
-    window.initializeOnward(true, '#onward-container', storefrontClient);
+    window.initializeOnward({
+      storefrontClient,
+      containerSelector: '#onward-container',
+      force: true,
+      locale: {
+        currency_iso_code: 'EUR',
+        request_locale: 'fr-FR',
+      }
+    });
   });
 
   return (

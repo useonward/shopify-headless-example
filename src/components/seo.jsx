@@ -77,9 +77,7 @@ export function Seo({
         href="/apple-touch-icon.png"
       />
 
-      <script
-        src={`${process.env.ONWARD_WIDGET_URL}?v=${Date.now()}`}
-      />
+      <script src={`${process.env.ONWARD_WIDGET_URL}?shop=${process.env.GATSBY_SHOPIFY_STORE_URL}`} />
 
       {/* The following meta tag is for demonstration only and can be removed */}
       {!!process.env.GATSBY_DEMO_STORE && (
